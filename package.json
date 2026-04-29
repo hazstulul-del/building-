@@ -1,0 +1,13 @@
+{
+  "name": "buat-apk-dari-website",
+  "version": "1.0.0",
+  "description": "Buat APK dari Website - Real APK Generator",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": ["apk", "builder", "generator", "website to apk"],
+  "author": "Barr",
+  "license": "MIT"
+}
