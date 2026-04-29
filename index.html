@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat APK dari Website</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(22, 33, 62, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(233, 69, 96, 0.03) 0%, transparent 70%);
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 1.7em;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff, #e94560);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #bbb;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1em;
+            z-index: 2;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: rgba(15, 52, 96, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 0.95em;
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+        }
+
+        input:focus {
+            border-color: #e94560;
+            background: rgba(15, 52, 96, 0.9);
+            box-shadow: 0 0 25px rgba(233, 69, 96, 0.15);
+            transform: translateY(-1px);
+        }
+
+        input::placeholder {
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .hint {
+            display: block;
+            color: #666;
+            font-size: 0.72em;
+            margin-top: 5px;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-build {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #e94560 0%, #c23152 100%);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1.05em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-build:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-build:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .btn-build:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-build::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #e94560;
+            border-radius: 50%;
+            margin: 25px auto;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .spinner.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+            display: none;
+            animation: slideUp 0.5s ease;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-box.success {
+            background: rgba(0, 200, 83, 0.1);
+            border: 2px solid rgba(0, 200, 83, 0.3);
+        }
+
+        .result-box.error {
+            background: rgba(233, 69, 96, 0.1);
+            border: 2px solid rgba(233, 69, 96, 0.3);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .result-message {
+            color: #bbb;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 13px 35px;
+            background: linear-gradient(135deg, #00c853, #00e676);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 200, 83, 0.4);
+        }
+
+        .footer-text {
+            text-align: center;
+            color: #555;
+            font-size: 0.72em;
+            margin-top: 25px;
+            letter-spacing: 0.3px;
+        }
+
+        .footer-text span {
+            color: #e94560;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+            .header h1 {
+                font-size: 1.4em;
+            }
+            input {
+                padding: 12px 14px 12px 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="header">
+                <div class="icon">📱</div>
+                <h1>Buat APK dari Website</h1>
+                <p>Masukkan URL website kamu, jadi APK beneran</p>
+            </div>
+
+            <form id="apkForm">
+                <div class="form-group">
+                    <label>Masukkan URL Website (https://...)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔗</span>
+                        <input 
+                            type="url" 
+                            id="urlInput" 
+                            placeholder="https://websitekamu.com" 
+                            required 
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email kamu (buat notif)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📧</span>
+                        <input 
+                            type="email" 
+                            id="emailInput" 
+                            placeholder="emailkamu@gmail.com" 
+                            required 
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Aplikasi</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📝</span>
+                        <input 
+                            type="text" 
+                            id="appNameInput" 
+                            placeholder="ex: rey" 
+                            required 
+                            maxlength="30" 
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                    </div>
+                    <span class="hint">Nama ini yang muncul di hape nanti</span>
+                </div>
+
+                <button type="submit" class="btn-build" id="buildBtn">
+                    <span class="btn-text">⚡ Buat APK</span>
+                </button>
+            </form>
+
+            <div class="spinner" id="spinner"></div>
+            <div class="result-box" id="resultBox"></div>
+
+            <p class="footer-text">Made with <span>❤️</span> by Barr • APK Real Generator</p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('apkForm');
+        const urlInput = document.getElementById('urlInput');
+        const emailInput = document.getElementById('emailInput');
+        const appNameInput = document.getElementById('appNameInput');
+        const buildBtn = document.getElementById('buildBtn');
+        const spinner = document.getElementById('spinner');
+        const resultBox = document.getElementById('resultBox');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            let url = urlInput.value.trim();
+            const email = emailInput.value.trim();
+            const appName = appNameInput.value.trim();
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            if (!isValidURL(url)) {
+                showResult('error', 'URL Tidak Valid', 'Harap masukkan URL dengan format https:// yang benar.');
+                return;
+            }
+
+            buildBtn.disabled = true;
+            buildBtn.querySelector('.btn-text').textContent = '⏳ Membangun APK...';
+            spinner.classList.add('show');
+            resultBox.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/build-apk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, email, appName })
+                });
+
+                const data = await response.json();
+
+                spinner.classList.remove('show');
+                buildBtn.disabled = false;
+                buildBtn.querySelector('.btn-text').textContent = '⚡ Buat APK';
+
+                if (data.success) {
+                    showResult('success', 
+                        '✅ APK Berhasil Dibuat!',
+                        `<strong>${appName}.apk</strong> siap diunduh.<br>Link download juga dikirim ke <strong>${email}</strong>`,
+                        data.downloadUrl
+                    );
+
+                    setTimeout(() => {
+                        window.open(data.downloadUrl, '_blank');
+                    }, 800);
+                } else {
+                    showResult('error', '❌ Gagal Membuat APK', data.error || 'Terjadi kesalahan, coba lagi nanti.');
+                }
+            } catch (err) {
+                spinner.classList.remove('show');
+                buildBtn.disabled = false;
+                buildBtn.querySelector('.btn-text').textContent = '⚡ Buat APK';
+                showResult('error', '❌ Error Koneksi', 'Gagal terhubung ke server. Periksa internet kamu.');
+            }
+        });
+
+        function isValidURL(string) {
+            try {
+                const url = new URL(string);
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function showResult(type, title, message, downloadUrl = null) {
+            let html = `<div class="result-title">${title}</div>`;
+            html += `<div class="result-message">${message}</div>`;
+            
+            if (downloadUrl) {
+                html += `<a href="${downloadUrl}" class="download-btn" download>📥 Download APK Sekarang</a>`;
+            }
+            
+            resultBox.innerHTML = html;
+            resultBox.className = `result-box show ${type}`;
+        }
+    </script>
+</body>
+</html>
