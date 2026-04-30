@@ -1,472 +1,663 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat APK dari Website</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 50%, #16213e 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: rgba(22, 33, 62, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 40px 30px;
-            max-width: 440px;
-            width: 100%;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(233, 69, 96, 0.03) 0%, transparent 70%);
-            animation: float 20s infinite linear;
-        }
-
-        @keyframes float {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .header .icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .header h1 {
-            color: #ffffff;
-            font-size: 1.7em;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff, #e94560);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header p {
-            color: #888;
-            font-size: 0.85em;
-            margin-top: 5px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: #bbb;
-            font-size: 0.85em;
-            font-weight: 600;
-            margin-bottom: 8px;
-            letter-spacing: 0.3px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.1em;
-            z-index: 2;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 16px 14px 44px;
-            background: rgba(15, 52, 96, 0.6);
-            border: 2px solid rgba(255, 255, 255, 0.06);
-            border-radius: 14px;
-            color: #fff;
-            font-size: 0.95em;
-            outline: none;
-            transition: all 0.3s ease;
-            letter-spacing: 0.3px;
-        }
-
-        input:focus {
-            border-color: #e94560;
-            background: rgba(15, 52, 96, 0.9);
-            box-shadow: 0 0 25px rgba(233, 69, 96, 0.15);
-            transform: translateY(-1px);
-        }
-
-        input::placeholder {
-            color: #555;
-            font-size: 0.9em;
-        }
-
-        .hint {
-            display: block;
-            color: #666;
-            font-size: 0.72em;
-            margin-top: 5px;
-            letter-spacing: 0.2px;
-        }
-
-        .btn-build {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #e94560 0%, #c23152 100%);
-            border: none;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 1.05em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-build:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(233, 69, 96, 0.4);
-        }
-
-        .btn-build:active {
-            transform: translateY(0);
-            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
-        }
-
-        .btn-build:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-build::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-        }
-
-        .btn-text {
-            position: relative;
-            z-index: 1;
-        }
-
-        .spinner {
-            display: none;
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid #e94560;
-            border-radius: 50%;
-            margin: 25px auto;
-            animation: spin 0.7s linear infinite;
-        }
-
-        .spinner.show {
-            display: block;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .result-box {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 14px;
-            text-align: center;
-            display: none;
-            animation: slideUp 0.5s ease;
-        }
-
-        .result-box.show {
-            display: block;
-        }
-
-        .result-box.success {
-            background: rgba(0, 200, 83, 0.1);
-            border: 2px solid rgba(0, 200, 83, 0.3);
-        }
-
-        .result-box.error {
-            background: rgba(233, 69, 96, 0.1);
-            border: 2px solid rgba(233, 69, 96, 0.3);
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .result-title {
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-
-        .result-message {
-            color: #bbb;
-            font-size: 0.9em;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-
-        .download-btn {
-            display: inline-block;
-            padding: 13px 35px;
-            background: linear-gradient(135deg, #00c853, #00e676);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.95em;
-            transition: all 0.3s ease;
-            letter-spacing: 0.5px;
-        }
-
-        .download-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(0, 200, 83, 0.4);
-        }
-
-        .footer-text {
-            text-align: center;
-            color: #555;
-            font-size: 0.72em;
-            margin-top: 25px;
-            letter-spacing: 0.3px;
-        }
-
-        .footer-text span {
-            color: #e94560;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 30px 20px;
-                border-radius: 20px;
-            }
-            .header h1 {
-                font-size: 1.4em;
-            }
-            input {
-                padding: 12px 14px 12px 40px;
-            }
-        }
-    </style>
+    <meta name="description" content="XINN BUILD APK - Build Your Website Into Android APK">
+    <title>XINN BUILD APK - Build Your Website Into Android APK</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <div class="content">
-            <div class="header">
-                <div class="icon">📱</div>
-                <h1>Buat APK dari Website</h1>
-                <p>Masukkan URL website kamu, jadi APK beneran</p>
-            </div>
-
-            <form id="apkForm">
-                <div class="form-group">
-                    <label>Masukkan URL Website (https://...)</label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">🔗</span>
-                        <input 
-                            type="url" 
-                            id="urlInput" 
-                            placeholder="https://websitekamu.com" 
-                            required 
-                            autocomplete="off"
-                            spellcheck="false"
-                        >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Email kamu (buat notif)</label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">📧</span>
-                        <input 
-                            type="email" 
-                            id="emailInput" 
-                            placeholder="emailkamu@gmail.com" 
-                            required 
-                            autocomplete="off"
-                            spellcheck="false"
-                        >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Nama Aplikasi</label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">📝</span>
-                        <input 
-                            type="text" 
-                            id="appNameInput" 
-                            placeholder="ex: rey" 
-                            required 
-                            maxlength="30" 
-                            autocomplete="off"
-                            spellcheck="false"
-                        >
-                    </div>
-                    <span class="hint">Nama ini yang muncul di hape nanti</span>
-                </div>
-
-                <button type="submit" class="btn-build" id="buildBtn">
-                    <span class="btn-text">⚡ Buat APK</span>
-                </button>
-            </form>
-
-            <div class="spinner" id="spinner"></div>
-            <div class="result-box" id="resultBox"></div>
-
-            <p class="footer-text">Made with <span>❤️</span> by Barr • APK Real Generator</p>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loader-content">
+            <div class="loader-ring"></div>
+            <div class="loader-text">XINN BUILD APK</div>
+            <div class="loader-subtext">Initializing System...</div>
         </div>
     </div>
 
-    <script>
-        const form = document.getElementById('apkForm');
-        const urlInput = document.getElementById('urlInput');
-        const emailInput = document.getElementById('emailInput');
-        const appNameInput = document.getElementById('appNameInput');
-        const buildBtn = document.getElementById('buildBtn');
-        const spinner = document.getElementById('spinner');
-        const resultBox = document.getElementById('resultBox');
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
 
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="#" class="logo" onclick="scrollToTop(event)">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <span>XINN BUILD APK</span>
+            </a>
+            <nav class="nav">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#build" class="nav-link">Build APK</a>
+                <a href="#history" class="nav-link">History</a>
+                <a href="#faq" class="nav-link">FAQ</a>
+            </nav>
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="scrollToSection('build')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    Mulai Build
+                </button>
+            </div>
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <div class="mobile-nav" id="mobile-nav">
+            <a href="#features" class="mobile-nav-link">Features</a>
+            <a href="#build" class="mobile-nav-link">Build APK</a>
+            <a href="#history" class="mobile-nav-link">History</a>
+            <a href="#faq" class="mobile-nav-link">FAQ</a>
+        </div>
+    </header>
 
-            let url = urlInput.value.trim();
-            const email = emailInput.value.trim();
-            const appName = appNameInput.value.trim();
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-bg"></div>
+            <div class="hero-glow"></div>
+            <div class="container hero-content">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    <span>Build APK Instant • 2026</span>
+                </div>
+                <h1 class="hero-title">
+                    Ubah Website Jadi<br>
+                    <span class="gradient-text">APK Android</span><br>
+                    Dalam Sekejap
+                </h1>
+                <p class="hero-subtitle">
+                    XINN BUILD APK membantu kamu membuat APK dari website dengan cepat, modern, dan mudah. Tidak perlu coding, tidak perlu Android Studio.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-lg" onclick="scrollToSection('build')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                        Mulai Build APK
+                    </button>
+                    <button class="btn btn-secondary btn-lg" onclick="scrollToSection('preview-section')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        Lihat Preview
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-total">0</span>
+                        <span class="stat-label">Total Build</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-success">0</span>
+                        <span class="stat-label">APK Success</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value">&lt;30s</span>
+                        <span class="stat-label">Fast Build</span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
-            }
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-badge">Features</span>
+                    <h2 class="section-title">Fitur Unggulan</h2>
+                    <p class="section-subtitle">Semua yang kamu butuhkan untuk membuat APK dari website</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon cyan">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                        </div>
+                        <h3>Fast Build</h3>
+                        <p>Proses build APK super cepat dalam hitungan detik</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                <path d="M12 18h.01"/>
+                            </svg>
+                        </div>
+                        <h3>WebView Engine</h3>
+                        <p>Menggunakan Android WebView modern untuk performa terbaik</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                        <h3>Secure Signing</h3>
+                        <p>APK ditandatangani dengan sertifikat keamanan</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon cyan">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+                                <line x1="16" y1="8" x2="2" y2="22"/>
+                                <line x1="17.5" y1="15" x2="9" y2="15"/>
+                            </svg>
+                        </div>
+                        <h3>Lightweight UI</h3>
+                        <p>APK ringan dengan ukuran file yang optimal</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                <path d="M12 18h.01"/>
+                            </svg>
+                        </div>
+                        <h3>Mobile Friendly</h3>
+                        <p>Dioptimalkan untuk pengalaman mobile terbaik</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                        </div>
+                        <h3>Ready for Backend</h3>
+                        <p>Siap diintegrasikan dengan backend untuk build real</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            if (!isValidURL(url)) {
-                showResult('error', 'URL Tidak Valid', 'Harap masukkan URL dengan format https:// yang benar.');
-                return;
-            }
+        <!-- Build Section -->
+        <section class="build-section" id="build">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-badge">Build APK</span>
+                    <h2 class="section-title">Buat APK Sekarang</h2>
+                    <p class="section-subtitle">Isi form di bawah untuk membuat APK dari website kamu</p>
+                </div>
+                
+                <div class="build-container">
+                    <!-- Build Form -->
+                    <div class="build-form-wrapper" id="build-form-wrapper">
+                        <form id="build-form" class="build-form">
+                            <div class="form-group">
+                                <label for="app-name">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                        <polyline points="22,6 12,13 2,6"/>
+                                    </svg>
+                                    Nama Aplikasi
+                                </label>
+                                <input type="text" id="app-name" placeholder="Contoh: My Cool App" required>
+                                <span class="input-hint">Nama yang akan ditampilkan di home screen</span>
+                            </div>
 
-            buildBtn.disabled = true;
-            buildBtn.querySelector('.btn-text').textContent = '⏳ Membangun APK...';
-            spinner.classList.add('show');
-            resultBox.classList.remove('show');
+                            <div class="form-group">
+                                <label for="website-url">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="2" y1="12" x2="22" y2="12"/>
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                    </svg>
+                                    URL Website
+                                </label>
+                                <input type="url" id="website-url" placeholder="https://example.com" required>
+                                <span class="input-hint">URL lengkap website yang akan di-convert</span>
+                            </div>
 
-            try {
-                const response = await fetch('/api/build-apk', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url, email, appName })
-                });
+                            <div class="form-group">
+                                <label for="package-name">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                    </svg>
+                                    Package Name
+                                </label>
+                                <input type="text" id="package-name" placeholder="com.example.app" readonly>
+                                <span class="input-hint">Auto-generated dari nama aplikasi</span>
+                            </div>
 
-                const data = await response.json();
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="app-version">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="16,18 22,12 16,6"/>
+                                            <polyline points="8,6 2,12 8,18"/>
+                                        </svg>
+                                        Versi Aplikasi
+                                    </label>
+                                    <input type="text" id="app-version" placeholder="1.0.0" value="1.0.0">
+                                </div>
 
-                spinner.classList.remove('show');
-                buildBtn.disabled = false;
-                buildBtn.querySelector('.btn-text').textContent = '⚡ Buat APK';
+                                <div class="form-group">
+                                    <label for="theme-color">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="13.5" cy="6.5" r="2.5"/>
+                                            <circle cx="19" cy="17" r="2"/>
+                                            <circle cx="6" cy="12" r="3"/>
+                                        </svg>
+                                        Warna Tema
+                                    </label>
+                                    <div class="color-picker-wrapper">
+                                        <input type="color" id="theme-color" value="#8b5cf6">
+                                        <span class="color-value" id="color-value">#8b5cf6</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                if (data.success) {
-                    showResult('success', 
-                        '✅ APK Berhasil Dibuat!',
-                        `<strong>${appName}.apk</strong> siap diunduh.<br>Link download juga dikirim ke <strong>${email}</strong>`,
-                        data.downloadUrl
-                    );
+                            <div class="form-group">
+                                <label>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <polyline points="21,15 16,10 5,21"/>
+                                    </svg>
+                                    Icon Aplikasi
+                                </label>
+                                <div class="upload-area" id="upload-area">
+                                    <input type="file" id="app-icon" accept="image/*" hidden>
+                                    <div class="upload-content" id="upload-content">
+                                        <div class="upload-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                                <polyline points="17,8 12,3 7,8"/>
+                                                <line x1="12" y1="3" x2="12" y2="15"/>
+                                            </svg>
+                                        </div>
+                                        <p>Klik atau drag & drop icon di sini</p>
+                                        <span>PNG, JPG, SVG (Maks 512x512)</span>
+                                    </div>
+                                    <div class="upload-preview" id="upload-preview">
+                                        <img id="icon-preview" src="" alt="Icon Preview">
+                                        <button type="button" class="remove-icon" id="remove-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                <line x1="6" y1="6" x2="18" y2="18"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
-                    setTimeout(() => {
-                        window.open(data.downloadUrl, '_blank');
-                    }, 800);
-                } else {
-                    showResult('error', '❌ Gagal Membuat APK', data.error || 'Terjadi kesalahan, coba lagi nanti.');
-                }
-            } catch (err) {
-                spinner.classList.remove('show');
-                buildBtn.disabled = false;
-                buildBtn.querySelector('.btn-text').textContent = '⚡ Buat APK';
-                showResult('error', '❌ Error Koneksi', 'Gagal terhubung ke server. Periksa internet kamu.');
-            }
-        });
+                            <div class="form-options">
+                                <label class="toggle-option">
+                                    <input type="checkbox" id="fullscreen-mode" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Mode Fullscreen</span>
+                                </label>
+                                <label class="toggle-option">
+                                    <input type="checkbox" id="enable-js" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Enable JavaScript</span>
+                                </label>
+                                <label class="toggle-option">
+                                    <input type="checkbox" id="enable-cache" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Enable Cache</span>
+                                </label>
+                            </div>
 
-        function isValidURL(string) {
-            try {
-                const url = new URL(string);
-                return url.protocol === 'http:' || url.protocol === 'https:';
-            } catch (_) {
-                return false;
-            }
-        }
+                            <button type="submit" class="btn btn-primary btn-lg btn-full btn-glow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                                </svg>
+                                Build APK Sekarang
+                            </button>
+                        </form>
+                    </div>
 
-        function showResult(type, title, message, downloadUrl = null) {
-            let html = `<div class="result-title">${title}</div>`;
-            html += `<div class="result-message">${message}</div>`;
-            
-            if (downloadUrl) {
-                html += `<a href="${downloadUrl}" class="download-btn" download>📥 Download APK Sekarang</a>`;
-            }
-            
-            resultBox.innerHTML = html;
-            resultBox.className = `result-box show ${type}`;
-        }
-    </script>
+                    <!-- Phone Preview -->
+                    <div class="preview-section" id="preview-section">
+                        <h3 class="preview-title">Live Preview</h3>
+                        <div class="phone-mockup">
+                            <div class="phone-frame">
+                                <div class="phone-notch"></div>
+                                <div class="phone-screen">
+                                    <div class="phone-status-bar">
+                                        <span>9:41</span>
+                                        <div class="status-icons">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                                                <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+                                            </svg>
+                                            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                                                <rect x="2" y="7" width="20" height="12" rx="2"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="phone-content" id="phone-content">
+                                        <div class="splash-screen" id="splash-screen">
+                                            <div class="splash-icon" id="splash-icon">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                                </svg>
+                                            </div>
+                                            <p class="splash-name" id="splash-name">App Name</p>
+                                            <p class="splash-url" id="splash-url">https://example.com</p>
+                                        </div>
+                                    </div>
+                                    <div class="phone-nav-bar">
+                                        <div class="nav-pill"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="preview-info">
+                            <div class="preview-info-item">
+                                <span class="info-label">Nama:</span>
+                                <span class="info-value" id="preview-name">-</span>
+                            </div>
+                            <div class="preview-info-item">
+                                <span class="info-label">Package:</span>
+                                <span class="info-value" id="preview-package">-</span>
+                            </div>
+                            <div class="preview-info-item">
+                                <span class="info-label">Version:</span>
+                                <span class="info-value" id="preview-version">1.0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Build Progress Modal -->
+        <div class="modal" id="build-modal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="build-progress" id="build-progress">
+                    <div class="progress-header">
+                        <div class="progress-icon spinning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <h3>Building APK</h3>
+                        <p id="current-step-text">Initializing...</p>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                    <div class="progress-percentage" id="progress-percentage">0%</div>
+                    <div class="terminal" id="terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="terminal-title">build.log</span>
+                        </div>
+                        <div class="terminal-body" id="terminal-body">
+                            <p class="terminal-line"><span class="terminal-prompt">$</span> xinn-build --init</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Build Result -->
+                <div class="build-result" id="build-result">
+                    <div class="result-header success">
+                        <div class="result-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                        </div>
+                        <h3>Build Berhasil!</h3>
+                        <p>APK kamu sudah siap didownload</p>
+                    </div>
+                    <div class="result-details">
+                        <div class="result-item">
+                            <span class="result-label">Build ID</span>
+                            <span class="result-value" id="result-build-id">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Nama APK</span>
+                            <span class="result-value" id="result-apk-name">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Package Name</span>
+                            <span class="result-value" id="result-package">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Ukuran APK</span>
+                            <span class="result-value" id="result-size">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Tanggal Build</span>
+                            <span class="result-value" id="result-date">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Status</span>
+                            <span class="result-value status-success">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                    <polyline points="20,6 9,17 4,12"/>
+                                </svg>
+                                SUCCESS
+                            </span>
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn btn-primary btn-lg" id="download-apk-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7,10 12,15 17,10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Download APK
+                        </button>
+                        <button class="btn btn-secondary" id="copy-link-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Copy Link
+                        </button>
+                        <button class="btn btn-ghost" id="build-again-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23,4 23,10 17,10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                            </svg>
+                            Build Lagi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <section class="history-section" id="history">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-badge">History</span>
+                    <h2 class="section-title">Riwayat Build</h2>
+                    <p class="section-subtitle">Semua APK yang pernah kamu build</p>
+                </div>
+                <div class="history-grid" id="history-grid">
+                    <!-- History cards will be inserted here -->
+                </div>
+                <div class="empty-state" id="empty-history">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                    </div>
+                    <h3>Belum Ada History</h3>
+                    <p>Build APK pertamamu sekarang dan history akan muncul di sini</p>
+                    <button class="btn btn-primary" onclick="scrollToSection('build')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                        Mulai Build APK
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section" id="faq">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-badge">FAQ</span>
+                    <h2 class="section-title">Pertanyaan Umum</h2>
+                    <p class="section-subtitle">Jawaban untuk pertanyaan yang sering diajukan</p>
+                </div>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Apa itu XINN BUILD APK?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6,9 12,15 18,9"/>
+                            </svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>XINN BUILD APK adalah tools modern untuk mengubah website menjadi aplikasi Android (APK). Dengan teknologi WebView, website kamu akan dikemas menjadi aplikasi native yang bisa diinstall di HP Android.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Apakah website harus HTTPS?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6,9 12,15 18,9"/>
+                            </svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Sangat disarankan menggunakan HTTPS untuk keamanan dan kompatibilitas yang lebih baik. Namun, HTTP juga didukung untuk testing.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Berapa ukuran APK yang dihasilkan?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6,9 12,15 18,9"/>
+                            </svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Ukuran APK berkisar antara 2-5 MB tergantung icon dan konfigurasi. APK yang dihasilkan sangat ringan karena menggunakan WebView bawaan Android.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Apakah APK bisa diupload ke Play Store?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6,9 12,15 18,9"/>
+                            </svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>APK yang dihasilkan secara teknis bisa diupload ke Play Store, namun perlu memenuhi kebijakan Google Play termasuk konten website yang sesuai.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Apakah ini gratis?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6,9 12,15 18,9"/>
+                            </svg>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Ya! XINN BUILD APK saat ini gratis untuk digunakan. Versi simulator ini bisa kamu gunakan tanpa batas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container">
+                <div class="cta-card">
+                    <div class="cta-glow"></div>
+                    <h2>Siap Membuat APK?</h2>
+                    <p>Ubah website kamu jadi aplikasi Android dalam hitungan detik</p>
+                    <button class="btn btn-primary btn-lg btn-glow" onclick="scrollToSection('build')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                        Build APK Sekarang
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <span>XINN BUILD APK</span>
+                    </div>
+                    <p>Build Your Website Into Android APK</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#features">Features</a>
+                    <a href="#build">Build APK</a>
+                    <a href="#history">History</a>
+                    <a href="#faq">FAQ</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>BY XINN 2026</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- History Detail Modal -->
+    <div class="modal" id="history-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3>Detail Build</h3>
+                <button class="modal-close" id="close-history-modal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="history-modal-body">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
